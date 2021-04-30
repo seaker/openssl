@@ -24,8 +24,8 @@ class X::OpenSSL::Exception is Exception {
     has $.message;
 }
 
-# SSLv2 | SSLv3 | TLSv1 | TLSv1.1 | TLSv1.2 | default
-subset ProtocolVersion of Numeric where * == 2| 3| 1| 1.1| 1.2| -1;
+# SSLv2 | SSLv3 | TLSv1 | TLSv1.1 | TLSv1.2 | TLSv1.3 | default
+subset ProtocolVersion of Numeric where * == 2| 3| 1| 1.1| 1.2| 1.3| -1;
 
 method new(Bool :$client = False, ProtocolVersion :$version = -1) {
 
@@ -60,6 +60,9 @@ method new(Bool :$client = False, ProtocolVersion :$version = -1) {
         }
         when 1.2 {
             $method = ($client ?? OpenSSL::Method::TLSv1_2_client_method() !! OpenSSL::Method::TLSv1_2_server_method());
+        }
+        when 1.3 {
+            $method = ($client ?? OpenSSL::Method::TLS_client_method() !! OpenSSL::Method::TLS_server_method());
         }
         # No explicit version means: negotiate.
         # In OpenSSL 1.1.0, TLS_method() replaces SSLv23_method()
